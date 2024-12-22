@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calendario Semanal</title>
+  <style>
+    /* Estilos aquí (los mismos que ya tienes en tu código) */
+  </style>
+</head>
+<body>
+  <div class="calendar">
+    <div class="calendar-header">
+      <button onclick="changeWeek(-1)">&#8249; Semana Anterior</button>
+      <h2 id="calendar-week"></h2>
+      <button onclick="changeWeek(1)">Semana Siguiente &#8250;</button>
+    </div>
+    <div class="calendar-grid" id="calendar-grid"></div>
+    <div class="calendar-actions">
+      <button onclick="loadFile()">Cargar</button>
+      <button onclick="saveFile()">Guardar</button>
+      <input type="file" id="file-input" style="display: none;" accept=".json" />
+    </div>
+  </div>
+
+  <script>
+    let currentDate = new Date();
+    const slotLabels = ["EL", "JG", "RD", "MG", "TX", "BP"]; // Letras en las casillas
+    let holidays = new Set(); // Festivos
+    let activeSlots = {}; // Casillas activas
+
+    const afternoonActivation = {
+      "EL": [2, 3],
+      "JG": [1, 3],
+      "RD": [2, 4],
+      "MG": [2, 4],
+      "TX": [1, 4],
+      "BP": [1, 3]
+    };
+
+    function saveData() {
+      localStorage.setItem("holidays", JSON.stringify([...holidays]));
+      localStorage.setItem("activeSlots", JSON.stringify(activeSlots));
+    }
+
+    function updateCalendarWeek() {
+      // Mismo contenido que ya tienes en tu función
+    }
+
+    function toggleHoliday(dayString, dayCell) {
+      // Mismo contenido que ya tienes en tu función
+    }
+
+    function toggleSlot(slot, slotId) {
+      // Mismo contenido que ya tienes en tu función
+    }
+
+    function changeWeek(offset) {
+      currentDate.setDate(currentDate.getDate() + offset * 7);
+      updateCalendarWeek();
+    }
+
+    // Función para cargar archivo JSON
+    function loadFile() {
+      const fileInput = document.getElementById("file-input");
+      fileInput.click(); // Abrir cuadro de selección de archivo
+
+      fileInput.onchange = (event) => {
+        const file = event.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            try {
+              const data = JSON.parse(e.target.result);
+              holidays = new Set(data.holidays || []);
+              activeSlots = data.activeSlots || {};
+              updateCalendarWeek(); // Actualizar el calendario
+              alert("Datos cargados correctamente.");
+            } catch (error) {
+              alert("Error al cargar el archivo JSON. Asegúrate de que el formato es correcto.");
+            }
+          };
+          reader.readAsText(file);
+        }
+      };
+    }
+
+    // Función para guardar archivo JSON
+    function saveFile() {
+      const data = {
+        holidays: [...holidays],
+        activeSlots: activeSlots
+      };
+
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "calendario.json"; // Nombre predeterminado del archivo
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+
+      URL.revokeObjectURL(url); // Limpiar la URL del objeto
+      alert("Datos guardados correctamente.");
+    }
+
+    // Inicializar la semana actual
+    updateCalendarWeek();
+  </script>
+</body>
+</html>
